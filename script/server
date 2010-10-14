@@ -37,7 +37,7 @@ fi
 
 #force AGPL
 if [ -w public -a ! -e  public/source.tar ]; then
-        tar cf public/source.tar  --exclude='source.tar' -X .gitignore *
+    tar czf public/source.tar.gz --exclude='source.tar.gz' -X .gitignore *
 fi
 if [ ! -e public/source.tar ]; then
     echo "Can't find, or even create, public/source.tar. Giving up"
