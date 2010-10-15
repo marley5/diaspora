@@ -6,11 +6,16 @@ realpath=$( python -c \
    "import os.path; print os.path.abspath(os.path.realpath(\"$0\"))")
 cd $( dirname $realpath)/..
 
-PORT=3000
-THIN_ARGS="$@"
-while [ $# -gt 0 ]; do
-    if [ "$1" = '-p' ]; then
-        PORT="$2"
+[ -e config/server.sh ] && source config/server.sh
+
+THIN_ARGS="$DEFAULT_THIN_ARGS $@"
+read -a args <<EOF
+${THIN_ARGS:-'-h'}
+EOF
+
+for (( i = ${#args[*]} - 1; i >= 0; i--)); do
+    if [ "${args[$i]}" = '-p' ]; then
+        PORT="${args[ $(( i+1))]}"
         break
     fi
     shift
@@ -50,4 +55,3 @@ fi
 mkdir -p -v log/thin/
 bundle exec ruby ./script/websocket_server.rb&
 bundle exec thin start $THIN_ARGS
-
