@@ -4,10 +4,10 @@
 #
 
 PORT=3000
-THIN_ARGS=$@
-while [ $(( $# > 1 )) = "1" ]; do
+THIN_ARGS="$@"
+while [ $# -gt 0 ]; do
     if [ "$1" = '-p' ]; then
-        PORT="$2";
+        PORT="$2"
         break
     fi
     shift
@@ -16,32 +16,32 @@ done
 # Is someone listening on the ports already? (ipv4 only test ?)
 services=$( netstat -nl | grep '[^:]:'$PORT'[ \t]')
 if [ -n "$services" ]; then
-    echo "Warning: something is already using thin port $PORT"
+    echo "Error: something is already using thin port $PORT. Exiting" >&2
     echo "     $services"
-    exit 1
+    exit 64
 fi
 
 services=$( netstat -nl | grep '[^:]:8080[ \t]')
 if [ -n "$services" ]; then
-    echo "Warning: something is already using websocket port 8080"
+    echo "Error: something is already using websocket port 8080. Exiting" >&2
     echo "     $services"
-    exit 1
+    exit 64
 fi
 
 # Check if Mongo is running
 if  ! pgrep mongod >/dev/null
 then
-    echo "Mongod not started"
-    exit 1
+    echo "Error: Mongod not started. Exiting" >&2
+    exit 64
 fi
 
 #force AGPL
-if [ -w public -a ! -e  public/source.tar ]; then
+if [ -w public  -a ! -e  public/source.tar ]; then
     tar czf public/source.tar.gz --exclude='source.tar.gz' -X .gitignore *
 fi
 if [ ! -e public/source.tar ]; then
-    echo "Can't find, or even create, public/source.tar. Giving up"
-    exit 2
+    echo "Error: Can't find, or even create, public/source.tar. Exiting" >&2
+    exit 65
 fi
 
 mkdir -p -v log/thin/
