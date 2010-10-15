@@ -2,6 +2,9 @@
 #
 # Start diaspora websocket and main services
 #
+realpath=$( python -c \
+   "import os.path; print os.path.abspath(os.path.realpath(\"$0\"))")
+cd $( dirname $realpath)/..
 
 PORT=3000
 THIN_ARGS="$@"
